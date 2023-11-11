@@ -2,17 +2,26 @@ import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+const token = localStorage.getItem('token');
 
-function Mahasiswa() {
+axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+
+function Jurusan() {
     const [jrs, setJrsn] = useState([]);
     const url = "http://localhost:3000/static/";
     useEffect(() => {
         fectData();
     }, []);
     const fectData = async () =>{
+
+    try{
         const response1 = await axios.get('http://localhost:3000/api/jrs');
         const data1 = await response1.data.data;
         setJrsn(data1);
+        } catch (error) {
+            console.error('Gagal mengambil data:', error);
+        }
     }
     
     const [show, setShow] = useState(false);
@@ -34,7 +43,11 @@ function Mahasiswa() {
         };
 
         try {
-            await axios.post('http://localhost:3000/api/jrs/store', formData);
+            await axios.post('http://localhost:3000/api/jrs/store', formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             navigate('/jrsn');
             fectData();
         } catch (error) {
@@ -93,8 +106,11 @@ function Mahasiswa() {
 
 
     const handleDelete = (id_j) => {
-        axios
-        .delete(`http://localhost:3000/api/jrs/delete/${id_j}`)
+        axios.delete(`http://localhost:3000/api/jrs/delete/${id_j}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
         .then((response) => {
             console.log('Data Berhasil Dihapus');
 
@@ -174,4 +190,4 @@ function Mahasiswa() {
     );
 }
 
-export default Mahasiswa;
+export default Jurusan;
